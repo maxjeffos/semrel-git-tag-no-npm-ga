@@ -1,0 +1,52 @@
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Runs a single command using the runners shell
+      - name: Do build things
+        run: echo "Do build things"
+
+      - name: Try semantic-release dry run
+        run: |
+          which node
+          which npx
+          npx -p @semantic-release/git -p semantic-release semantic-release --branch ${CIRCLE_BRANCH} --dry-run
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build and Release
+        run: |
+          npx -p @semantic-release/git -p semantic-release semantic-release --branch ${CIRCLE_BRANCH} --dry-run  > sem-rel-dry-run.txt
+          cat sem-rel-dry-run.txt
+          if grep "The next release version is" sem-rel-dry-run.txt
+          then
+            echo "do release"
+            next_version=$(cat sem-rel-dry-run.txt | grep "The next release version is" | sed -n -e 's/^.*is //p')
+            echo "next_version: ${next_version}"              
+            ls -la
+            sed -i "s|REPLACE_ORB_VERSION|${next_version}|g" thing-with-version.yml
+            echo "modified yaml file:"
+            # cat thing-with-version.yml
+            npx -p @semantic-release/git -p semantic-release semantic-release --branch ${CIRCLE_BRANCH}
+          else
+            echo "don't do release"
+          fi

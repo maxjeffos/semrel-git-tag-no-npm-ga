@@ -10,7 +10,7 @@ commands:
         parameters:
             message:
                 default: Hello! (default message)
-                description: The message you want to echo
+                description: The message you want to show
                 type: string
         steps:
             - run:

@@ -1,0 +1,42 @@
+version: 2.1
+description: |
+    For me to figure out Orb development.
+display:
+    home_url: https://github.com/maxjeffos/jeff-dev-orb/
+    source_url: https://github.com/maxjeffos/jeff-dev-orb/
+commands:
+    showmsg:
+        description: Show a message
+        parameters:
+            message:
+                default: Hello! (default message)
+                description: The message you want to echo
+                type: string
+        steps:
+            - run:
+                command: |
+                    echo "message: <<parameters.message>>"
+                    echo "MY_ENV_VAR: ${MY_ENV_VAR}"
+                    echo "ORB_VERSION: ${ORB_VERSION}"
+                environment:
+                    MY_ENV_VAR: CIRCLECI_ORB
+                    ORB_VERSION: 0.0.2
+                name: Show a Message
+examples:
+    example:
+        description: |
+            Used for sorting out Orb dev and devops
+        usage:
+            version: "2.1"
+            orbs:
+                test-orb: maxjeffos/test-orb@x.y.z
+            jobs:
+                build:
+                    docker:
+                        - image: circleci/node:12
+                    steps:
+                        - checkout
+                        - maxjeffos/test-orb:
+                            message: hello
+            workflows: null
+

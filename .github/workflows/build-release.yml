@@ -17,6 +17,13 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - name: Try CCI CLI
+        run: |
+          sudo snap install circleci
+          which circleci
+          circleci version
+          circleci orb --help
+
       # Runs a single command using the runners shell
       - name: Do build things
         run: echo "Do build things"
